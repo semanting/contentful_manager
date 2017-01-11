@@ -39,7 +39,7 @@
             <div class="">
                 <ul class="tabs grey lighten-3">
                     <li class="tab col s4"><a id="assetslistid" href="#assetslist" class="red-text bold">Source</a></li>
-                    <li class="tab col s4"><a id="selectedAssetid" href="#selectedAsset" class="red-text bold accent-2">Selected Files</a></li>
+                    <li class="tab col s4"><a id="selectedAssetid" href="#selectedAsset" class="red-text bold accent-2">Destination</a></li>
                     <li class="tab col s4"><a id="migratedAssetid" href="#migratedAsset" class="red-text bold accent-2">Migrate</a></li>
                 </ul>
             </div>
@@ -60,8 +60,8 @@
                         <label for="selectsource">  Source : </label>
                         <select class="filled-in" name="selectSrcSpace" id="ddlSrcSpace" ng-model="selectedSource" ng-options="x.space for x in spaces"
                             ng-change="changedValue(selectedSource)">
-                        <option value="" disabled selected>-- Select Source --</option>
-				       </select>
+                            <option value="" disabled selected>-- Select Source --</option>
+                            </select>
                     </div>
                 </div>
                 <!--Fetch all published assets and keep it in selectedfiles variable -->
@@ -71,10 +71,19 @@
                         <label for="search"><i class="material-icons">search</i>Search</label>
                     </div>
                     <div class="col s12">
+                        <ul class="responsive-table" data-ng-show="names.length>0">
+                            <li>
+                                <input type="checkbox" id="selectAllCheckbox" class="filled-in" ng-click="toggleAll()" ng-model="isAllSelected"/>
+                                <label for="selectAllCheckbox" class="teal-text">Select All</label>
+                            </li>
+                        </ul>
+                        <div class="divider"></div>
+                    </div>
+                    <div class="col s12">
                         <ul ng-repeat="x in names" ng-init="count=$index" id="sourceAssets">
                             <li ng-repeat="(filelocale,value) in x.fields.file">
                                 <span class="new badge" data-badge-caption="">{{count +1}}</span>
-                                <input type="checkbox" class="filled-in check-count" id="{{filelocale + value.fileName}}" ng-model="selectedfiles[filelocale +':'+ value.fileName + '$' + count]"
+                                <input type="checkbox" class="filled-in check-count" id="{{filelocale + value.fileName}}" ng-init="selectedfiles[filelocale +':'+ value.fileName + '$' + count]=false" ng-change="toggleSelectAll()" ng-model="selectedfiles[filelocale +':'+ value.fileName + '$' + count]"
                                 />
                                 <label class="grey-text text-accent-2" for="{{filelocale + value.fileName}}">{{filelocale + ' : ' + value.fileName}}</label>
                                 <p> <a href="{{value.url}}" class="dont-break-out blue-text text-accent-4" target="_blank">{{value.url}}</a></p>
