@@ -15,11 +15,23 @@ app.controller('bulkController', ['$scope', '$http', '$q', '$timeout', '$window'
         $scope.getDestSpace($('#ddlDestSpace').siblings('.dropdown-content').find('li.active>span').text());
       }
     });
-
     $scope.spaces = spac;
+    $scope.defaultDestLocale = "";
     $scope.result = {};
+    $scope.selectedLocale = "";
+    $scope.localeToUpload = "";
+    $scope.urlList = [];
+    var contentTypeList = {
+      "jpg": "image/jpeg",
+      "png": "image/png",
+      "bmp": "image/bmp",
+      "ico": "image/x-icon",
+      "doc": "application/msword",
+      "pdf": "application/pdf",
+      "mp4": "video/mpeg"
+    }
 
-    $scope.deleteAssetFromList = function (name,locale) {
+    $scope.deleteAssetFromList = function (name, locale) {
       for (var a in $scope.result.data) {
         if ($scope.result.data[a].asset_name == name && $scope.result.data[a].locale == locale) {
           $scope.result.data.splice(a, 1);
@@ -95,7 +107,7 @@ app.controller('bulkController', ['$scope', '$http', '$q', '$timeout', '$window'
                 .then((asset) => {
                   asset.publish()
                 })
-              //assetProcessed.publish()
+                //assetProcessed.publish()
                 .then((assetPublished) => {
                   selectedAsset.status = 'published';
                   $scope.setassetstatus(selectedAsset.asset_name, 'published', 'published');
@@ -353,6 +365,52 @@ app.controller('bulkController', ['$scope', '$http', '$q', '$timeout', '$window'
       }); //end of traversal loop 
 
     }; //end of upload function
+
+    $scope.getUrls = function (url) {
+      $http({
+        method: 'GET',
+        url: url
+      }).then(function successCallback(response) {
+        console.log(response);
+        $scope.temp = response.data;
+        dom = parseXml(response.data);
+        $scope.urlList = dom.childNodes[0].textContent.split(' ');
+        var fetchedAssetList = [];
+
+        for (var i = 0; i < 50; i++) {
+
+          if ($scope.urlList[i].length > 7) {
+            var name = $scope.urlList[i].split('/').pop().trim();
+            var locale = $scope.localeToUpload || $scope.defaultDestLocale;
+            var extn = name.split('.').pop().toLowerCase();
+
+            fetchedAssetList.push({
+              asset_name: name,
+              asset_title: name,
+              content_type: contentTypeList[extn] || "attachment",
+              locale: locale,
+              url: $scope.urlList[i]
+            })
+          }
+        }
+
+        $scope.result.data = fetchedAssetList;
+
+      }, function errorCallback(response) {
+
+      });
+
+    }
+
+
+    $scope.checkDest = function () {
+      if (angular.isUndefinedOrNullOrEmpty($scope.destSpace)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
   }])
   .directive("fileread", ['$filter', function ($filter) {
     return {
