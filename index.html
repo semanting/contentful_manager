@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="HandheldFriendly" content="true" />
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js"></script>
     <script src="js/contentful-management.min.js"></script>
     <script src="script/ang.js"></script>
 </head>
@@ -56,7 +56,8 @@
             <div class="divider" ng-hide="true"></div>
             <li><a href="#/" class="waves-effect waves-teal">Home</a></li>
             <li><a href="#/configure" class="waves-effect waves-teal">Configure</a></li>
-            <li><a href="#/migrate" class="waves-effect waves-teal">Migrate</a></li>
+            <li><a href="#/migrate" class="waves-effect waves-teal">Migrate Assets</a></li>
+            <li><a href="#/migrate-entries" class="waves-effect waves-teal">Migrate Entries</a></li>
             <li><a href="#/upload" class="waves-effect waves-teal">Contentful Upload</a></li>
             <li><a href="#/bulkupload" class="waves-effect waves-teal">Bulk Upload</a></li>
         </ul>
@@ -81,7 +82,8 @@
             <div class="divider" ng-hide="true"></div>
             <li><a href="#/" class="waves-effect waves-teal">Home</a></li>
             <li><a href="#/configure" class="waves-effect waves-teal">Configure</a></li>
-            <li><a href="#/migrate" class="waves-effect waves-teal">Migrate</a></li>
+            <li><a href="#/migrate" class="waves-effect waves-teal">Migrate Assets</a></li>
+            <li><a href="#/migrate-entries" class="waves-effect waves-teal">Migrate Entries</a></li>
             <li><a href="#/upload" class="waves-effect waves-teal">Contentful Upload</a></li>
             <li><a href="#/bulkupload" class="waves-effect waves-teal">Bulk Upload</a></li>
         </ul>
@@ -163,6 +165,7 @@
     <script type="text/javascript" src="script/controller.js"></script>
     <script type="text/javascript" src="script/uploadController.js"></script>
     <script type="text/javascript" src="script/bulkcontroller.js"></script>
+    <script type="text/javascript" src="script/entriesController.js"></script>
     <script src="js/xlsx.full.min.js"></script>
     <script src="js/ods.js"></script>
     <script src="js/xml2json.js"></script>
