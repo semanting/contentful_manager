@@ -9,10 +9,11 @@ app.controller('entriesController', ['$scope', '$http', '$q', '$timeout', '$wind
     //functions
 
     $scope.getAllEntries = function (space, skipValue) {
+
         space.getEntries({
-                skip: skipValue,
-                order: "sys.createdAt"
-            })
+            skip: skipValue,
+            order: "sys.createdAt"
+        })
             .then((assets) => {
                 $scope.totalEntries = assets.total;
                 $scope.names = $scope.names.concat(assets.items);
@@ -42,6 +43,7 @@ app.controller('entriesController', ['$scope', '$http', '$q', '$timeout', '$wind
                 $scope.names = [];
                 $scope.totalEntries = 0;
                 var skipValue = 0;
+
                 $scope.getAllEntries(space, skipValue);
             });
     }
@@ -89,33 +91,83 @@ app.controller('entriesController', ['$scope', '$http', '$q', '$timeout', '$wind
         $scope.publishedAsset = [];
         $scope.resultSet = [];
         var space = $scope.selectedDest;
+        var sourcespace = $scope.selectedSource;
 
-        $scope.srcClient = contentfulManagement.createClient({
+        $scope.destClient = contentfulManagement.createClient({
             // This is the access token for this space. Normally you get both ID and the token in the Contentful web app
             accessToken: space.token
         });
-        $scope.srcClient.getSpace(space.value)
+
+        $scope.srcClient = contentfulManagement.createClient({
+            // This is the access token for this space. Normally you get both ID and the token in the Contentful web app
+            accessToken: sourcespace.token
+        });
+
+        $scope.destClient.getSpace(space.value)
             .then((space) => {
                 //loop for traversing selected items 
-                var interval =0;
+                var interval = 0;
                 angular.forEach($scope.names, function (x) {
                     if (x.selected == true) {
                         x.status = "Started";
                         $timeout(function () {
-                             migrateEntry(space, x);
+                            createContentType(space,sourcespace, x);  
                         }, interval);
                         interval = interval + 1000;
                     }
                 }); //end of migrate function
             });
     };
-
+    function createContentType(space,sourcespace, x) {
+       
+        var contenTypeID = x.sys.contentType.sys.id;
+        var fieldData = {};
+        var data;
+        space.getContentType(contenTypeID)
+       .then(contenType => {
+           console.log("Content type exists")
+           migrateEntry(space, x);
+                           })
+            .catch((contentTypeNotFound) => {
+                console.log("content type not found")
+                //get field object and name of 
+                $scope.srcClient.getSpace(sourcespace.value)
+                            .then((srcspace) => {
+                                srcspace.getContentType(contenTypeID)
+                                    .then(contentType => {
+                                        console.log("source content data");
+                                       
+                                        data = contentType.fields;
+                                        fieldData.fields = data;
+                                        fieldData.name = contentType.name;
+                                        fieldData.displayField = contentType.displayField
+                                        console.log(fieldData)
+                                        space.createContentTypeWithId(contenTypeID, fieldData)
+                                             .then((ct) => {
+                                                 ct.publish()
+                                                 .then((pct) => {
+                                                     migrateEntry(space, x);
+                                                 })
+                                                 .catch((err) => {
+                                                     //catch if there is any publishing error 
+                                                     var e = JSON.parse(err.message);
+                                                     console.log(e.status + ':' + e.statusText);
+                                                     x.status = e.status + ':' + e.statusText;
+                                                     $scope.$apply();
+                                                 });
+                 
+                                        })
+                                })
+                  })
+          })
+    }
     function migrateEntry(space, x) {
         var contenTypeID = x.sys.contentType.sys.id;
         var entryid = x.sys.id;
         var fields = x.fields;
         var fieldobj = {};
         fieldobj.fields = fields;
+
         space.getEntry(entryid)
             .then(entry => {
                 console.log(entry);
@@ -144,6 +196,7 @@ app.controller('entriesController', ['$scope', '$http', '$q', '$timeout', '$wind
                     });
 
             }).catch((notfoundentry) => {
+                
                 space.createEntryWithId(contenTypeID, entryid,
                         fieldobj)
                     .then(newentry => {
